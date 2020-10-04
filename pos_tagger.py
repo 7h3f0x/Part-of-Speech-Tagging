@@ -13,6 +13,25 @@ def print_as_table(dictionary: dict, first_col_name: str):
     print("-"*57)
 
 
+def write_to_file(fname, data):
+
+    # Let's use the same func to write lists as well as dicts to file
+    if type(data) == type({}):
+        write_data = ''
+        for key in data:
+            write_data += f"{key}: {data[key]}\n"
+        with open(fname, 'w') as f:
+            f.write(write_data)
+
+    if type(data) == type([]):
+        write_data = ''
+        for val in data:
+            write_data += f"{val}\n"
+        
+        with open(fname, 'w') as f:
+            f.write(write_data)
+
+
 TRAINING_FILES = glob.glob("Train-corups/*/*.xml")
 
 WORD_TAG_COUNT = dict()

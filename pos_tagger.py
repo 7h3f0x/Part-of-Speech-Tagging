@@ -50,7 +50,7 @@ def parse_single_xml(xml_file):
 
     word_tag_list = list()
     for pos in pos_list:
-        word = pos.get('hw')
+        word = pos.text
         tags = pos.get('c5').split('-')
 
         for tag in tags:

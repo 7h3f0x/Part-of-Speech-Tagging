@@ -50,11 +50,19 @@ def parse_single_xml(xml_file):
 
     word_tag_list = list()
     for pos in pos_list:
-        word = pos.text
+        word = pos.text.strip()
         tags = pos.get('c5').split('-')
 
         for tag in tags:
             word_tag_list.append(f"{word}_{tag}")
+
+    for punctuation in tree.findall(".//c"):
+        word = punctuation.text.strip()
+        tags = punctuation.get('c5').split('-')
+
+        for tag in tags:
+            word_tag_list.append(f"{word}_{tag}")
+
 
     TRAINING_LISTS.append(word_tag_list)    # We keep a list of all the word_tag lists generate
     # Let's dump it to a file now

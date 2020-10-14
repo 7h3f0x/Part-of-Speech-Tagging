@@ -63,6 +63,18 @@ def parse_single_xml(xml_file):
         for tag in tags:
             word_tag_list.append(f"{word}_{tag}")
 
+    for multi_word in tree.findall(".//mw"):
+        mw = ""
+
+        for word in multi_word:
+            mw += word.text
+
+        mw = mw.strip()
+        tags = multi_word.get("c5")
+
+        for tag in tags:
+            word_tag_list.append(f"{mw}_{tag}")
+
 
     TRAINING_LISTS.append(word_tag_list)    # We keep a list of all the word_tag lists generate
     # Let's dump it to a file now

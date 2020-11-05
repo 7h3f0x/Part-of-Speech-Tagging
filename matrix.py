@@ -31,6 +31,21 @@ def generate_probability(word: str, tag: str):
 
     return ( WORD_TAG_DICT.get(f'{word}_{tag}', 0) / WORD_DICT[f'{word}'] )
 
+def predict_tag_naive(word: str):
+    
+    max_prob = 0.0
+    tag_predicted = ''
+
+    for tag in TAG_DICT.keys():
+        tag_prob = generate_probability(word, tag)
+        if max_prob < tag_prob:
+            max_prob = tag_prob
+            tag_predicted = tag
+
+    if tag_predicted:
+        return tag_predicted
+
+    return None
 
 def main():
 
@@ -51,6 +66,7 @@ def main():
     for tag in TAG_DICT.keys():
         print(f'{word_input}_{tag}: {generate_probability(word_input, tag)}')
 
+    print(colored(predict_tag_naive(word_input), 'green'))
 
 if __name__ == '__main__':
     main()

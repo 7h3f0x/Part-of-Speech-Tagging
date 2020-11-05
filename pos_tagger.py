@@ -112,5 +112,8 @@ def main():
     print("\nTop 10 most frequent tags:")
     report_top_n(TAG_COUNT)
 
+    write_to_file('word', WORD_COUNT)
+    write_to_file('word_tag', WORD_TAG_COUNT)
+
 if __name__ == "__main__":
     main()

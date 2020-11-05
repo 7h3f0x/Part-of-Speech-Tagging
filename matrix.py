@@ -1,4 +1,6 @@
 #!/usr/bin/python3
+import glob
+import xml.etree.ElementTree as ET
 
 from termcolor import colored
 
@@ -47,6 +49,34 @@ def predict_tag_naive(word: str):
 
     return None
 
+def parse_single_xml(xml_file):
+    tree = ET.parse(xml_file)
+    pos_list = tree.findall(".//w")
+
+    word_list = list()
+    for pos in pos_list:
+        word = pos.text.strip()
+        word_list.append(word)
+
+    idx = 0
+    for punctuation in tree.findall(".//c"):
+        try:
+            word = punctuation.text.strip()
+            word_list.append(word)
+        except AttributeError:
+            pass
+
+    for multi_word in tree.findall(".//mw"):
+        mw = ""
+
+        for word in multi_word:
+            mw += word.text
+        
+        mw = mw.strip()
+        word_list.append(mw)
+    
+    return word_list
+
 def main():
 
     global TAG_DICT
@@ -57,16 +87,17 @@ def main():
     WORD_DICT = generate_dict('word')
 
 
-    word_input = input("Please enter your word\n").strip('\n')
+    word_list = list()
 
-    if not (WORD_DICT.get(word_input, None)):
-        print(colored("Word not in dictionary", "red"))
-        exit(1)
+    testing_files = glob.glob("Test-corpus/*/*.xml")
+    for fname in testing_files:
+        word_list += parse_single_xml(fname)
 
-    for tag in TAG_DICT.keys():
-        print(f'{word_input}_{tag}: {generate_probability(word_input, tag)}')
-
-    print(colored(predict_tag_naive(word_input), 'green'))
+    for word in word_list:
+        try:
+            text = colored(f'{word}: {predict_tag_naive(word)}', 'green')
+        except KeyError:
+            pass
 
 if __name__ == '__main__':
     main()

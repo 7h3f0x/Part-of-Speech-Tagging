@@ -31,7 +31,7 @@ def write_to_file(fname, data):
     if type(data) == type({}):
         write_data = ''
         for key in data:
-            write_data += f"{key}: {data[key]}\n"
+            write_data += f"{key}~ {data[key]}\n"
         with open(fname, 'w') as f:
             f.write(write_data)
 
@@ -114,6 +114,7 @@ def main():
 
     write_to_file('word', WORD_COUNT)
     write_to_file('word_tag', WORD_TAG_COUNT)
+    write_to_file('tag', TAG_COUNT)
 
 if __name__ == "__main__":
     main()

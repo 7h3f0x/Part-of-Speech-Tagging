@@ -56,13 +56,15 @@ def parse_single_xml(xml_file):
     word_list = list()
     for pos in pos_list:
         word = pos.text.strip()
-        word_list.append(word)
+        tags = pos.get('c5').split('-')
+        word_list.append([word, tags])
 
     idx = 0
     for punctuation in tree.findall(".//c"):
         try:
             word = punctuation.text.strip()
-            word_list.append(word)
+            tags = pos.get('c5').split('-')
+            word_list.append([word, tags])
         except AttributeError:
             pass
 
@@ -73,7 +75,8 @@ def parse_single_xml(xml_file):
             mw += word.text
         
         mw = mw.strip()
-        word_list.append(mw)
+        tags = multi_word.get("c5")
+        word_list.append([mw, tags])
     
     return word_list
 
@@ -89,15 +92,65 @@ def main():
 
     word_list = list()
 
-    testing_files = glob.glob("Test-corpus/*/*.xml")
-    for fname in testing_files:
-        word_list += parse_single_xml(fname)
+    # testing_files = glob.glob("Test-corpus/*/*.xml")
+    # for fname in testing_files:
+    #     word_list += parse_single_xml(fname)
+
+    word_list = parse_single_xml("Test-corpus/AS/ASD.xml")
 
     for word in word_list:
         try:
             text = colored(f'{word}: {predict_tag_naive(word)}', 'green')
         except KeyError:
             pass
+
+    tag_dict = dict()
+
+    idx = 0
+    for key in TAG_DICT.keys():
+        tag_dict[key] = idx
+        idx += 1
+
+
+    confusion_matrix = list()
+
+    for i in range(len(tag_dict.keys()) + 1):
+        t = list()
+        for j in range(idx + 1):
+            t.append(0)
+        confusion_matrix.append(t)
+
+    for word_tag in word_list:
+        word =word_tag[0]
+        try:
+            tag_predicted = predict_tag_naive(word)
+            
+            for tag in word_tag[1]:
+                confusion_matrix[tag_dict[tag]][tag_dict[tag_predicted]] = confusion_matrix[tag_dict[tag]][tag_dict[tag_predicted]] + 1
+        except:
+            pass
+
+    for i in range(len(tag_dict.keys())):
+        sum_row = 0
+        for j in range(len(tag_dict.keys())):
+            sum_row += confusion_matrix[i][j]
+
+        confusion_matrix[i][idx] = sum_row
+
+    for i in range(len(tag_dict.keys())):
+        sum_col = 0
+        for j in range(len(tag_dict.keys())):
+            sum_col += confusion_matrix[j][i]
+
+        confusion_matrix[j][idx] = sum_col
+
+    correct_pred = 0
+    for i in range(len(tag_dict.keys())):
+        correct_pred += confusion_matrix[i][i]
+
+    print(f'{correct_pred}: {len(word_list)}')
+
+    print(confusion_matrix)
 
 if __name__ == '__main__':
     main()

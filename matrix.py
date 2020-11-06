@@ -142,7 +142,7 @@ def main():
         for j in range(len(tag_dict.keys())):
             sum_col += confusion_matrix[j][i]
 
-        confusion_matrix[j][idx] = sum_col
+        confusion_matrix[idx][i] = sum_col
 
     correct_pred = 0
     for i in range(len(tag_dict.keys())):

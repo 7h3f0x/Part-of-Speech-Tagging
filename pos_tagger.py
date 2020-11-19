@@ -70,7 +70,7 @@ def parse_single_xml(xml_file):
             mw += word.text
 
         mw = mw.strip()
-        tags = multi_word.get("c5")
+        tags = multi_word.get("c5").split('-')
 
         for tag in tags:
             word_tag_list.append(f"{mw}_{tag}")

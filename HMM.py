@@ -171,37 +171,42 @@ def hmm(test_files_list: list, f_start: int, f_end: int):
             f_cnt += 1
             continue
         print(fname)
-        for sentence in parse_single_xml(fname):
-            word_count += len(sentence)
-            words = [word[0] for word in sentence]
-            predicted_tags = viterbi(words)
-            for i in range(len(sentence)):
-                tag_predicted = predicted_tags[i]
-                for tag in sentence[i][1]:
-                    confusion_matrix[tag_dict[tag]][tag_dict[tag_predicted]] = confusion_matrix[tag_dict[tag]][tag_dict[tag_predicted]] + 1
+        # for sentence in parse_single_xml(fname):
+        #     word_count += len(sentence)
+        #     words = [word[0] for word in sentence]
+        #     predicted_tags = viterbi(words)
+        #     for i in range(len(sentence)):
+        #         tag_predicted = predicted_tags[i]
+        #         for tag in sentence[i][1]:
+        #             confusion_matrix[tag_dict[tag]][tag_dict[tag_predicted]] = confusion_matrix[tag_dict[tag]][tag_dict[tag_predicted]] + 1
             # break
          # break
         f_cnt += 1
         if f_cnt >= f_end:
             break
 
-    for i in range(len(tag_dict.keys())):
-        sum_row = 0
-        for j in range(len(tag_dict.keys())):
-            sum_row += confusion_matrix[i][j]
+    with open(f'./confusion_matrices/{f_start}_{f_end}', 'wb') as f:
+        pickle.dump(confusion_matrix, f)
+    with open(f'./word_count/{f_start}_{f_end}') as f:
+        pickle.dump(word_count, f)
 
-        confusion_matrix[i][idx] = sum_row
+    # for i in range(len(tag_dict.keys())):
+    #     sum_row = 0
+    #     for j in range(len(tag_dict.keys())):
+    #         sum_row += confusion_matrix[i][j]
+    #
+    #     confusion_matrix[i][idx] = sum_row
+    #
+    # for i in range(len(tag_dict.keys())):
+    #     sum_col = 0
+    #     for j in range(len(tag_dict.keys())):
+    #         sum_col += confusion_matrix[j][i]
+    #
+    # correct_pred = 0
+    # for i in range(len(tag_dict.keys())):
+    #     correct_pred += confusion_matrix[i][i]
 
-    for i in range(len(tag_dict.keys())):
-        sum_col = 0
-        for j in range(len(tag_dict.keys())):
-            sum_col += confusion_matrix[j][i]
-
-    correct_pred = 0
-    for i in range(len(tag_dict.keys())):
-        correct_pred += confusion_matrix[i][i]
-
-    print(correct_pred, word_count)
+    # print(correct_pred, word_count)
 
 def main():
     train(glob.glob("Train-corups/A*/*.xml"))

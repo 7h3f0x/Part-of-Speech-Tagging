@@ -17,9 +17,11 @@ def parse_sentence(sentence: list, train: bool) -> list:
     global TAG_TRANSITION
     prev_tags = ["^"]
     word_list = list()
-    if list(sentence)[0].tag == 'hi':
-        sentence = list(sentence)[0]
-    for word in sentence:
+    skip_cnt = 0
+    for word in sentence.findall('.//*[@c5]'):
+        if skip_cnt > 0:
+            skip_cnt -= 1
+            continue
         if word.tag != "mw":
             try:
                 text = word.text.strip()
@@ -29,6 +31,7 @@ def parse_sentence(sentence: list, train: bool) -> list:
         else:
             text = ""
             for w in word:
+                skip_cnt += 1
                 text += w.text
             text = text.strip()
             tags = word.get("c5").split("-")
@@ -51,6 +54,7 @@ def parse_single_xml(xml_fname: str, train=False) -> Iterator:
     for sentence in sentences:
         tmp = parse_sentence(sentence, train)
         if not tmp:
+            print(xml_fname)
             print(sentence.get('n'))
             exit(1)
         yield tmp
@@ -78,7 +82,8 @@ def train(train_files_list : list):
                     TAG_DICT[tag] = TAG_DICT.get(tag, 0) + 1
                     WORD_TAG_DICT[f"{word}_{tag}"] = WORD_TAG_DICT.get(f"{word}_{tag}", 0) + 1
 
-    start_count = Decimal(sum(TAG_TRANSITION.values()))
+    for tag in TAG_DICT:
+        start_count += Decimal(TAG_TRANSITION.get(f"{tag}_^", 0))
     with open('./cache', 'wb') as f:
         pickle.dump([WORD_TAG_DICT, WORD_DICT, TAG_DICT, TAG_TRANSITION, start_count], f)
 

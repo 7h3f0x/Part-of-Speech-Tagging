@@ -4,6 +4,7 @@ from decimal import Decimal
 from typing import Iterator
 import pickle
 import os
+import sys
 
 
 WORD_TAG_DICT =dict()
@@ -144,7 +145,7 @@ def viterbi(sentence: list) -> list:
     return sequence
 
 
-def hmm(test_files_list: list):
+def hmm(test_files_list: list, f_start: int, f_end: int):
     tag_dict = dict()
     idx = 0
     for key in TAG_DICT.keys():
@@ -162,12 +163,11 @@ def hmm(test_files_list: list):
 
     word_count = 0
     f_cnt = 0
-    f_skip = 0
     for fname in test_files_list:
         # skip initial `f_skip` number of files
         # FOR TESTING PURPOSE ONLY
         # TODO : remove this at the end
-        if f_cnt < f_skip:
+        if f_cnt < f_start:
             f_cnt += 1
             continue
         print(fname)
@@ -181,6 +181,9 @@ def hmm(test_files_list: list):
                     confusion_matrix[tag_dict[tag]][tag_dict[tag_predicted]] = confusion_matrix[tag_dict[tag]][tag_dict[tag_predicted]] + 1
             # break
          # break
+        f_cnt += 1
+        if f_cnt >= f_end:
+            break
 
     for i in range(len(tag_dict.keys())):
         sum_row = 0
@@ -202,7 +205,7 @@ def hmm(test_files_list: list):
 
 def main():
     train(glob.glob("Train-corups/A*/*.xml"))
-    hmm(glob.glob("Test-corpus/A*/*.xml"))
+    hmm(sorted(glob.glob("Test-corpus/A*/*.xml")), int(sys.argv[1]), int(sys.argv[2]))
 
 
 if __name__ == "__main__":

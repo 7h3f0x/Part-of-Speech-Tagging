@@ -171,14 +171,14 @@ def hmm(test_files_list: list, f_start: int, f_end: int):
             f_cnt += 1
             continue
         print(fname)
-        # for sentence in parse_single_xml(fname):
-        #     word_count += len(sentence)
-        #     words = [word[0] for word in sentence]
-        #     predicted_tags = viterbi(words)
-        #     for i in range(len(sentence)):
-        #         tag_predicted = predicted_tags[i]
-        #         for tag in sentence[i][1]:
-        #             confusion_matrix[tag_dict[tag]][tag_dict[tag_predicted]] = confusion_matrix[tag_dict[tag]][tag_dict[tag_predicted]] + 1
+        for sentence in parse_single_xml(fname):
+            word_count += len(sentence)
+            words = [word[0] for word in sentence]
+            predicted_tags = viterbi(words)
+            for i in range(len(sentence)):
+                tag_predicted = predicted_tags[i]
+                for tag in sentence[i][1]:
+                    confusion_matrix[tag_dict[tag]][tag_dict[tag_predicted]] = confusion_matrix[tag_dict[tag]][tag_dict[tag_predicted]] + 1
             # break
          # break
         f_cnt += 1
@@ -187,7 +187,7 @@ def hmm(test_files_list: list, f_start: int, f_end: int):
 
     with open(f'./confusion_matrices/{f_start}_{f_end}', 'wb') as f:
         pickle.dump(confusion_matrix, f)
-    with open(f'./word_count/{f_start}_{f_end}') as f:
+    with open(f'./word_count/{f_start}_{f_end}', 'wb') as f:
         pickle.dump(word_count, f)
 
     # for i in range(len(tag_dict.keys())):

@@ -162,7 +162,7 @@ def hmm(test_files_list: list):
 
     word_count = 0
     f_cnt = 0
-    f_skip = 7
+    f_skip = 0
     for fname in test_files_list:
         # skip initial `f_skip` number of files
         # FOR TESTING PURPOSE ONLY
@@ -180,7 +180,7 @@ def hmm(test_files_list: list):
                 for tag in sentence[i][1]:
                     confusion_matrix[tag_dict[tag]][tag_dict[tag_predicted]] = confusion_matrix[tag_dict[tag]][tag_dict[tag_predicted]] + 1
             # break
-        break
+         # break
 
     for i in range(len(tag_dict.keys())):
         sum_row = 0

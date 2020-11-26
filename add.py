@@ -76,6 +76,7 @@ for key in TAG_DICT.keys():
     tag_dict[key] = idx
     idx += 1
 
+total_fscore = 0
 
 for tag in tag_dict.keys():
     # false positive is basically last value of row/column :p. Maths hack
@@ -85,4 +86,6 @@ for tag in tag_dict.keys():
 
     fscore = 2*true_positive/(false_negative + false_positive)
 
+    total_fscore += fscore
 
+print(f'Avg. Fscore: {total_fscore/len(tag_dict.keys())}')

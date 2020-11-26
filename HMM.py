@@ -90,16 +90,17 @@ def train(train_files_list : list):
 
 
 def probability_tag_tag(tag: str, prev_tag: str) -> Decimal:
+    # Add one smoothing
     if prev_tag == "^":
         # start probabilities
-        return Decimal(TAG_TRANSITION.get(f"{tag}_{prev_tag}", 0)) / start_count
+        return (Decimal(TAG_TRANSITION.get(f"{tag}_{prev_tag}", 0)) + Decimal(1)) / (start_count + Decimal(len(TAG_TRANSITION)))
     else:
         # transition probabilities
-        return Decimal(TAG_TRANSITION.get(f"{tag}_{prev_tag}", 0)) / Decimal(TAG_DICT.get(prev_tag, 0))
+        return (Decimal(TAG_TRANSITION.get(f"{tag}_{prev_tag}", 0)) + Decimal(1)) / (Decimal(TAG_DICT.get(prev_tag, 0)) + Decimal(len(TAG_TRANSITION)))
 
 
 def probability_word_tag(word: str, tag: str) -> Decimal:
-    # add 1 smoothening
+    # add 1 smoothing
     return ( Decimal(WORD_TAG_DICT.get(f"{word}_{tag}", 0)) + Decimal(1) ) / ( Decimal(TAG_DICT.get(tag, 0)) + Decimal(len(TAG_DICT)) )
 
 
@@ -194,14 +195,14 @@ def hmm(test_files_list: list, f_start: int, f_end: int):
     #     sum_row = 0
     #     for j in range(len(tag_dict.keys())):
     #         sum_row += confusion_matrix[i][j]
-    #
+    
     #     confusion_matrix[i][idx] = sum_row
-    #
+    
     # for i in range(len(tag_dict.keys())):
     #     sum_col = 0
     #     for j in range(len(tag_dict.keys())):
     #         sum_col += confusion_matrix[j][i]
-    #
+    
     # correct_pred = 0
     # for i in range(len(tag_dict.keys())):
     #     correct_pred += confusion_matrix[i][i]

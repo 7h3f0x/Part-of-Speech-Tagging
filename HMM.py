@@ -5,13 +5,15 @@ from typing import Iterator
 import pickle
 import os
 import sys
-
+from math import log
 
 WORD_TAG_DICT =dict()
 WORD_DICT = dict()
 TAG_DICT = dict()
 TAG_TRANSITION = dict()
 start_count = Decimal(0)
+TAG_DICT_GOOD = dict()
+TAG_TRANSITION_GOOD = dict()
 
 
 def parse_sentence(sentence: list, train: bool) -> list:
@@ -92,10 +94,10 @@ def train(train_files_list : list):
 def probability_tag_tag(tag: str, prev_tag: str) -> Decimal:
     if prev_tag == "^":
         # start probabilities
-        return Decimal(TAG_TRANSITION.get(f"{tag}_{prev_tag}", 0)) / start_count
+        return Decimal(TAG_TRANSITION_GOOD.get(f"{tag}_{prev_tag}", 0)) / start_count
     else:
         # transition probabilities
-        return Decimal(TAG_TRANSITION.get(f"{tag}_{prev_tag}", 0)) / Decimal(TAG_DICT.get(prev_tag, 0))
+        return Decimal(TAG_TRANSITION_GOOD.get(f"{tag}_{prev_tag}", 0)) / Decimal(TAG_DICT_GOOD.get(prev_tag, 0))
 
 
 def probability_word_tag(word: str, tag: str) -> Decimal:
@@ -152,7 +154,8 @@ def hmm(test_files_list: list, f_start: int, f_end: int):
         tag_dict[key] = idx
         idx += 1
 
-
+    good_turing()
+    good_turing_uni()
     confusion_matrix = list()
 
     for i in range(len(tag_dict.keys()) + 1):
@@ -185,28 +188,56 @@ def hmm(test_files_list: list, f_start: int, f_end: int):
         if f_cnt >= f_end:
             break
 
-    with open(f'./confusion_matrices/{f_start}_{f_end}', 'wb') as f:
+    with open(f'./confusion_matrices/good_{f_start}_{f_end}', 'wb') as f:
         pickle.dump(confusion_matrix, f)
-    with open(f'./word_count/{f_start}_{f_end}', 'wb') as f:
+    with open(f'./word_count/good_{f_start}_{f_end}', 'wb') as f:
         pickle.dump(word_count, f)
 
-    # for i in range(len(tag_dict.keys())):
-    #     sum_row = 0
-    #     for j in range(len(tag_dict.keys())):
-    #         sum_row += confusion_matrix[i][j]
-    #
-    #     confusion_matrix[i][idx] = sum_row
-    #
-    # for i in range(len(tag_dict.keys())):
-    #     sum_col = 0
-    #     for j in range(len(tag_dict.keys())):
-    #         sum_col += confusion_matrix[j][i]
-    #
-    # correct_pred = 0
-    # for i in range(len(tag_dict.keys())):
-    #     correct_pred += confusion_matrix[i][i]
+def good_turing():
 
-    # print(correct_pred, word_count)
+    Nc = dict()
+    for (key, value) in TAG_TRANSITION.items():
+        if value in Nc:
+            Nc[value] += 1
+        else:
+            Nc[value] = 1
+
+    global TAG_TRANSITION_GOOD
+    for (key, value) in TAG_TRANSITION.items():
+        # if value > k:
+        #     TAG_TRANSITION_GOOD[key] = float(value)
+        # else:
+        r = float(value)
+        nr = Nc[value]
+        TAG_TRANSITION_GOOD[key] = ((r + 1) * (nr + 1))/ nr
+
+def good_turing_uni():
+    Nc = {}
+    for (key, value) in TAG_DICT.items():
+        if value in Nc:
+            Nc[value] += 1
+        else:
+            Nc[value] = 1
+
+    global TAG_DICT_GOOD
+    for (key, value) in TAG_DICT.items():
+        r = float(value)
+        nr = Nc[value]
+        TAG_DICT_GOOD[key] = ((r + 1) * (nr + 1))/ nr
+
+
+# def calc_backoff(tag, prev_tag):
+#     if f'{tag}_{prev_tag}' in TAG_TRANSITION.keys():
+#         return (float(TAG_TRANSITION_GOOD[f'{tag}_{prev_tag}'])/TAG_DICT_GOOD[prev_tag])
+#     else:
+#         total_bi_prob = 0.0
+#         for (key, value) in TAG_TRANSITION.items():
+#             keys = key.split('_')
+#             if keys[1] == prev_tag:
+#                 total_bi_prob += float(TAG_TRANSITION_GOOD[key])/TAG_DICT[keys[1]]
+#             alpha = 1 - total_bi_prob
+#             if alpha == 0: return -float("inf")
+#             else: return  (alpha*float(TAG_DICT_GOOD[prev_tag])/len(TAG_DICT))
 
 def main():
     train(glob.glob("Train-corups/A*/*.xml"))
